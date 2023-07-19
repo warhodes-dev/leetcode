@@ -10,31 +10,31 @@ impl Solution {
         use std::cmp::Reverse;
 
         let mut queue = lists.into_iter()
-            .flatten()
+            .filter(Option::is_some)
             .map(|node| Reverse(node))
             .collect::<BinaryHeap<_>>();
 
-        let mut sentinel = Box::new(ListNode::new(-1));
-        let mut tail = &mut sentinel;
+        let mut head = None;
+        let mut tail = &mut head;
         
-        while let Some(Reverse(node)) = queue.pop() {
+        while let Some(Reverse(mut node)) = queue.pop() {
 
-            if let Some(next_node) = node.next {
+            let next_node = node.as_mut().and_then(|node| node.next.take());
+            if next_node.is_some() {
                 queue.push(Reverse(next_node));
             }
             
-            let new_node = Some(Box::new(ListNode::new(node.val)));
-            tail.next = new_node;
-            tail = tail.next.as_mut().unwrap();
+            *tail = node;
+            tail = &mut tail.as_mut().unwrap().next;
         }
 
-        sentinel.next
+        head
     }
 }
 
 impl PartialOrd for ListNode {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
+        Some(self.cmp(&other))
     }
 }
 
@@ -76,6 +76,19 @@ mod _23 {
         ];
         let correct = List::from_str("");
         let ans = Solution::merge_k_lists(lists);
+        assert!(List::equals(ans, correct))
+    }
+    #[test]
+    fn case4() {
+        let lists = vec![
+            List::from_str("145889"),
+            List::from_str("1344445699"),
+            List::from_str("2344489"),
+        ];
+        let correct = List::from_str("11233444444445568889999");
+        let ans = Solution::merge_k_lists(lists);
+        println!("Correct: {:?}", correct);
+        println!("Answer: {:?}", ans);
         assert!(List::equals(ans, correct))
     }
 }

@@ -2,6 +2,9 @@
 mod _2_add_two_numbers;
 mod _3_longest_substring_without_repeating_characters;
 mod _23_merge_k_sorted_lists;
+mod _24_swap_nodes_in_pairs;
+mod _37_sudoku_solver;
+mod functional_fizzbuzz;
 
 mod list {
     #[derive(PartialEq, Eq, Clone, Debug)]
