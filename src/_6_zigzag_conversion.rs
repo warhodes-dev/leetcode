@@ -4,15 +4,16 @@ impl Solution {
     pub fn convert(s: String, num_rows: i32) -> String {
         let mut rows = vec![String::new(); num_rows as usize];
 
-        let indexed_chars = (0..num_rows)
+        let indices = (0..num_rows)
             .chain(
                 (1..num_rows)
                 .rev()
                 .skip(1)
             )
             .cycle()
-            .map(|idx| idx as usize)
-            .zip(s.chars());
+            .map(|idx| idx as usize);
+
+        let indexed_chars = indices.zip(s.chars());
 
         for (idx, char) in indexed_chars {
             rows[idx].push(char);

@@ -2,31 +2,31 @@ struct Solution;
 
 impl Solution {
     pub fn solve_sudoku(board: &mut Vec<Vec<char>>) {
-        let mut sudoku = Sudoku::new(board);    
-        recursive_solve(&mut sudoku);
+        recursive_solve(board);
     }
 }
 
-fn recursive_solve(sudoku: &mut Sudoku) -> bool {
+type Board = Vec<Vec<char>>;
+
+fn recursive_solve(board: &mut Board) -> bool {
     for r in 0..9 {
         for c in 0..9 {
 
             // Recursive case: If there is an unfilled '.', fill it with any
             // number and recurse on the new board state.
-            if sudoku.board[r][c] == '.' {
+            if board[r][c] == '.' {
                 for i in 1..=9 {
-                    sudoku.board[r][c] = char::from_digit(i, 10).unwrap();
-                    if sudoku.check_row(r)
-                    && sudoku.check_column(c)
-                    && sudoku.check_chunk_xy(r, c)
-                    && recursive_solve(sudoku) {
+                    board[r][c] = char::from_digit(i, 10).unwrap();
+                    if check_row(board, r)
+                    && check_column(board, c)
+                    && check_chunk(board, r, c)
+                    && recursive_solve(board) {
                         return true;
                     }
-
                 }
 
                 // Failure case: We tried every number and found no solution
-                sudoku.board[r][c] = '.';
+                board[r][c] = '.';
                 return false;
             }
         }
@@ -36,63 +36,42 @@ fn recursive_solve(sudoku: &mut Sudoku) -> bool {
     return true;
 }
 
-struct Sudoku<'a> {
-    board: &'a mut Vec<Vec<char>>
+fn check_row(board: &Board, row_idx: usize) -> bool {
+    let mut set = std::collections::HashSet::new();
+    let row = &board[row_idx];
+    for &cell in row {
+        if cell != '.' && !set.insert(cell) {
+            return false;
+        }
+    }
+    return true;
 }
 
-impl<'a> Sudoku<'a> {
-    fn new(board: &'a mut Vec<Vec<char>>) -> Self {
-        Sudoku { board }
+fn check_column(board: &Board, col_idx: usize) -> bool {
+    let mut set = std::collections::HashSet::new();
+    for row in board.iter() {
+        let cell = row[col_idx];
+        if cell != '.' && !set.insert(cell) {
+            return false;
+        }
     }
+    return true;
+}
 
-    fn check_row(&self, row_idx: usize) -> bool {
-        let mut set = std::collections::HashSet::new();
-        let row = &self.board[row_idx];
-        for &cell in row {
+fn check_chunk(board: &Board, row_idx: usize, col_idx: usize) -> bool {
+    let mut set = std::collections::HashSet::new();
+    let chunk_x = (row_idx / 3) * 3;
+    let chunk_y = (col_idx / 3) * 3;
+
+    for x in chunk_x..(chunk_x + 3) {
+        for y in chunk_y..(chunk_y + 3) {
+            let cell = board[x][y];
             if cell != '.' && !set.insert(cell) {
                 return false;
             }
         }
-        return true;
     }
-
-    fn check_column(&self, col_idx: usize) -> bool {
-        let mut set = std::collections::HashSet::new();
-        for row in self.board.iter() {
-            let cell = row[col_idx];
-            if cell != '.' && !set.insert(cell) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    fn check_chunk_xy(&self, row_idx: usize, col_idx: usize) -> bool {
-        let mut set = std::collections::HashSet::new();
-        let chunk_x = (row_idx / 3) * 3;
-        let chunk_y = (col_idx / 3) * 3;
-
-        for x in chunk_x..(chunk_x + 3) {
-            for y in chunk_y..(chunk_y + 3) {
-                let cell = self.board[x][y];
-                if cell != '.' && !set.insert(cell) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    fn check_chunk(&self, chunk_idx: usize) -> bool {
-        if !(0..9).contains(&chunk_idx) {
-            panic!("Invalid chunk index: {chunk_idx}");
-        }
-        let (x, y) = (
-            (chunk_idx % 3) * 3,
-            (chunk_idx / 3) * 3,
-        );
-        self.check_chunk_xy(x, y)
-    }
+    return true;
 }
 
 #[cfg(test)]
