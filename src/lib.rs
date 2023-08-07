@@ -6,6 +6,10 @@ mod _24_swap_nodes_in_pairs;
 mod _37_sudoku_solver;
 mod _6_zigzag_conversion;
 mod _876_middle_of_the_linked_list;
+mod _121_best_time_to_buy_and_sell_stock;
+mod _20_valid_parenthesis;
+mod _4_median_of_two_sorted_arrays;
+mod _9_palindrome_number;
 mod fizzbuzz;
 
 mod list {
